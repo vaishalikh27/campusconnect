@@ -8,6 +8,7 @@ import CategoryTabs from './components/CategoryTabs'
 import PostGrid from './components/PostGrid'
 import EventDetail from './components/EventDetail'
 import AskAssistant from './components/AskAssistant'
+import Profile from './components/Profile'
 import { posts, CATEGORIES } from './data/posts'
 
 const SESSION_KEY = 'campusconnect:session'
@@ -40,6 +41,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [registeredIds, setRegisteredIds] = useState(() => readJSON(REGISTRATIONS_KEY) ?? [])
   const [selectedPostId, setSelectedPostId] = useState(null)
+  const [showProfile, setShowProfile] = useState(false)
 
   const isLoggedIn = Boolean(session)
   const hasOnboarded = Array.isArray(selectedInterests)
@@ -57,6 +59,7 @@ export default function App() {
     setSearchQuery('')
     setRegisteredIds([])
     setSelectedPostId(null)
+    setShowProfile(false)
     try {
       localStorage.removeItem(SESSION_KEY)
       localStorage.removeItem(INTERESTS_KEY)
@@ -138,11 +141,22 @@ export default function App() {
     )
   }
 
+  if (showProfile) {
+    return (
+      <Profile
+        user={session}
+        interests={selectedInterests}
+        onBack={() => setShowProfile(false)}
+        onLogout={handleLogout}
+      />
+    )
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-bg">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-accent/5 blur-[140px]" />
       <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Header user={session} onLogout={handleLogout} />
+        <Header user={session} onOpenProfile={() => setShowProfile(true)} />
 
         <AskAssistant registeredIds={registeredIdSet} onSelectPost={(post) => setSelectedPostId(post.id)} />
 
