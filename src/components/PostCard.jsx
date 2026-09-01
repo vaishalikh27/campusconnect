@@ -1,21 +1,25 @@
-import { Calendar, MapPin, CalendarDays, UsersRound, BookOpen, Megaphone, Sparkles } from 'lucide-react'
+import { Calendar, MapPin, Sparkles, ExternalLink, CheckCircle2 } from 'lucide-react'
+import { CATEGORY_META } from '../data/posts'
 
-const CATEGORY_META = {
-  event: { label: 'Event', icon: CalendarDays },
-  club: { label: 'Club Activity', icon: UsersRound },
-  note: { label: 'Note', icon: BookOpen },
-  announcement: { label: 'Announcement', icon: Megaphone },
-}
-
-export default function PostCard({ post, isPersonalized = false, compact = false }) {
+export default function PostCard({ post, isPersonalized = false, isRegistered = false, compact = false, onSelect }) {
   const meta = CATEGORY_META[post.category]
   const Icon = meta?.icon ?? Calendar
 
   return (
     <article
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect?.(post)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect?.(post)
+        }
+      }}
       className={[
-        'group flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-all duration-200',
+        'group flex h-full cursor-pointer flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-left transition-all duration-200',
         'hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-[0_8px_30px_rgba(58,134,255,0.12)]',
+        'focus:outline-none focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgba(58,134,255,0.15)]',
         compact ? 'w-72 shrink-0 sm:w-80' : '',
       ].join(' ')}
     >
@@ -24,12 +28,20 @@ export default function PostCard({ post, isPersonalized = false, compact = false
           <Icon size={12} className="text-accent" />
           {meta?.label ?? post.category}
         </span>
-        {isPersonalized && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
-            <Sparkles size={12} />
-            Matches your interests
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {isRegistered && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+              <CheckCircle2 size={12} />
+              Registered
+            </span>
+          )}
+          {isPersonalized && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
+              <Sparkles size={12} />
+              Matches your interests
+            </span>
+          )}
+        </div>
       </div>
 
       <div>
@@ -61,6 +73,19 @@ export default function PostCard({ post, isPersonalized = false, compact = false
             </span>
           ))}
         </div>
+      )}
+
+      {post.link && (
+        <a
+          href={post.link}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline"
+        >
+          <ExternalLink size={12} />
+          Open resource
+        </a>
       )}
     </article>
   )

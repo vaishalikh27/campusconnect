@@ -18,6 +18,21 @@ export const MOCK_USERS = [
     password: 'demo1234',
     name: 'Demo Student',
   },
+  {
+    email: 'priya.menon2025@vitstudent.ac.in',
+    password: 'campus123',
+    name: 'Priya Menon',
+  },
+  {
+    email: 'rahul.das2026@vitstudent.ac.in',
+    password: 'campus123',
+    name: 'Rahul Das',
+  },
+  {
+    email: 'sneha.kapoor2024@vitstudent.ac.in',
+    password: 'campus123',
+    name: 'Sneha Kapoor',
+  },
 ]
 
 export function findUser(email, password) {

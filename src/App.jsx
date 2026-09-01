@@ -6,10 +6,13 @@ import SearchBar from './components/SearchBar'
 import ForYouSection from './components/ForYouSection'
 import CategoryTabs from './components/CategoryTabs'
 import PostGrid from './components/PostGrid'
+import EventDetail from './components/EventDetail'
+import AskAssistant from './components/AskAssistant'
 import { posts, CATEGORIES } from './data/posts'
 
 const SESSION_KEY = 'campusconnect:session'
 const INTERESTS_KEY = 'campusconnect:selectedInterests'
+const REGISTRATIONS_KEY = 'campusconnect:registeredEventIds'
 
 const normalize = (value) => value.trim().toLowerCase()
 
@@ -35,6 +38,8 @@ export default function App() {
   const [selectedInterests, setSelectedInterests] = useState(() => readJSON(INTERESTS_KEY))
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id)
   const [searchQuery, setSearchQuery] = useState('')
+  const [registeredIds, setRegisteredIds] = useState(() => readJSON(REGISTRATIONS_KEY) ?? [])
+  const [selectedPostId, setSelectedPostId] = useState(null)
 
   const isLoggedIn = Boolean(session)
   const hasOnboarded = Array.isArray(selectedInterests)
@@ -50,9 +55,12 @@ export default function App() {
     setSession(null)
     setSelectedInterests(null)
     setSearchQuery('')
+    setRegisteredIds([])
+    setSelectedPostId(null)
     try {
       localStorage.removeItem(SESSION_KEY)
       localStorage.removeItem(INTERESTS_KEY)
+      localStorage.removeItem(REGISTRATIONS_KEY)
     } catch {
       // ignore
     }
@@ -62,6 +70,23 @@ export default function App() {
     setSelectedInterests(interests)
     writeJSON(INTERESTS_KEY, interests)
   }
+
+  // Registering just records the id locally — no payment or form, per the
+  // "simple stuff" ask. Idempotent so re-clicking (or a stale click) is safe.
+  const handleRegister = (postId) => {
+    setRegisteredIds((prev) => {
+      if (prev.includes(postId)) return prev
+      const next = [...prev, postId]
+      writeJSON(REGISTRATIONS_KEY, next)
+      return next
+    })
+  }
+
+  const registeredIdSet = useMemo(() => new Set(registeredIds), [registeredIds])
+  const selectedPost = useMemo(
+    () => posts.find((post) => post.id === selectedPostId) ?? null,
+    [selectedPostId],
+  )
 
   // Derived, not stored: For You is always computed from the single master
   // posts array, filtered against whatever interests are currently selected.
@@ -102,18 +127,36 @@ export default function App() {
     return <Onboarding onContinue={handleContinue} />
   }
 
+  if (selectedPost) {
+    return (
+      <EventDetail
+        post={selectedPost}
+        isRegistered={registeredIdSet.has(selectedPost.id)}
+        onRegister={() => handleRegister(selectedPost.id)}
+        onBack={() => setSelectedPostId(null)}
+      />
+    )
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Header user={session} onLogout={handleLogout} />
 
+        <AskAssistant registeredIds={registeredIdSet} onSelectPost={(post) => setSelectedPostId(post.id)} />
+
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <ForYouSection posts={forYouPosts} />
+        <ForYouSection posts={forYouPosts} registeredIds={registeredIdSet} onSelectPost={(post) => setSelectedPostId(post.id)} />
 
         <section className="flex animate-fade-up flex-col gap-5" style={{ animationDelay: '80ms' }}>
           <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
-          <PostGrid posts={visiblePosts} personalizedIds={forYouIds} />
+          <PostGrid
+            posts={visiblePosts}
+            personalizedIds={forYouIds}
+            registeredIds={registeredIdSet}
+            onSelectPost={(post) => setSelectedPostId(post.id)}
+          />
         </section>
       </div>
     </div>

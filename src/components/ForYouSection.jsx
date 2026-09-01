@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react'
 import PostCard from './PostCard'
 import EmptyState from './EmptyState'
 
-export default function ForYouSection({ posts }) {
+export default function ForYouSection({ posts, registeredIds, onSelectPost }) {
   return (
     <section className="animate-fade-up">
       <div className="mb-4 flex items-center gap-2">
@@ -18,7 +18,14 @@ export default function ForYouSection({ posts }) {
       ) : (
         <div className="no-scrollbar scrollbar-thin -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} isPersonalized compact />
+            <PostCard
+              key={post.id}
+              post={post}
+              isPersonalized
+              isRegistered={registeredIds.has(post.id)}
+              compact
+              onSelect={onSelectPost}
+            />
           ))}
         </div>
       )}

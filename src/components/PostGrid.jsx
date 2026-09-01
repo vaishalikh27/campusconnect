@@ -1,7 +1,7 @@
 import PostCard from './PostCard'
 import EmptyState from './EmptyState'
 
-export default function PostGrid({ posts, personalizedIds }) {
+export default function PostGrid({ posts, personalizedIds, registeredIds, onSelectPost }) {
   if (posts.length === 0) {
     return <EmptyState variant="search" />
   }
@@ -9,7 +9,13 @@ export default function PostGrid({ posts, personalizedIds }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} isPersonalized={personalizedIds.has(post.id)} />
+        <PostCard
+          key={post.id}
+          post={post}
+          isPersonalized={personalizedIds.has(post.id)}
+          isRegistered={registeredIds.has(post.id)}
+          onSelect={onSelectPost}
+        />
       ))}
     </div>
   )
