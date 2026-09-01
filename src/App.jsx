@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import Login from './components/Login'
 import Onboarding from './components/Onboarding'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
@@ -7,31 +8,59 @@ import CategoryTabs from './components/CategoryTabs'
 import PostGrid from './components/PostGrid'
 import { posts, CATEGORIES } from './data/posts'
 
-const STORAGE_KEY = 'campusconnect:selectedInterests'
+const SESSION_KEY = 'campusconnect:session'
+const INTERESTS_KEY = 'campusconnect:selectedInterests'
 
 const normalize = (value) => value.trim().toLowerCase()
 
+function readJSON(key) {
+  try {
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : null
+  } catch {
+    return null
+  }
+}
+
+function writeJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // localStorage unavailable — app still works for this session
+  }
+}
+
 export default function App() {
-  const [selectedInterests, setSelectedInterests] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? JSON.parse(stored) : null
-    } catch {
-      return null
-    }
-  })
+  const [session, setSession] = useState(() => readJSON(SESSION_KEY))
+  const [selectedInterests, setSelectedInterests] = useState(() => readJSON(INTERESTS_KEY))
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const isLoggedIn = Boolean(session)
   const hasOnboarded = Array.isArray(selectedInterests)
+
+  const handleLogin = (user) => {
+    setSession(user)
+    writeJSON(SESSION_KEY, user)
+  }
+
+  // Logging out resets personalization too, so the next login walks
+  // through the full Login -> Onboarding -> Dashboard flow again.
+  const handleLogout = () => {
+    setSession(null)
+    setSelectedInterests(null)
+    setSearchQuery('')
+    try {
+      localStorage.removeItem(SESSION_KEY)
+      localStorage.removeItem(INTERESTS_KEY)
+    } catch {
+      // ignore
+    }
+  }
 
   const handleContinue = (interests) => {
     setSelectedInterests(interests)
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(interests))
-    } catch {
-      // localStorage unavailable — selections still work for this session
-    }
+    writeJSON(INTERESTS_KEY, interests)
   }
 
   // Derived, not stored: For You is always computed from the single master
@@ -58,8 +87,16 @@ export default function App() {
   }, [activeCategory, searchQuery])
 
   useEffect(() => {
-    document.title = hasOnboarded ? 'CampusConnect — Your Feed' : 'CampusConnect — Get Started'
-  }, [hasOnboarded])
+    document.title = !isLoggedIn
+      ? 'CampusConnect — Sign In'
+      : !hasOnboarded
+        ? 'CampusConnect — Get Started'
+        : 'CampusConnect — Your Feed'
+  }, [isLoggedIn, hasOnboarded])
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />
+  }
 
   if (!hasOnboarded) {
     return <Onboarding onContinue={handleContinue} />
@@ -68,7 +105,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Header />
+        <Header user={session} onLogout={handleLogout} />
 
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 

@@ -7,8 +7,22 @@ activities, notes/resources, and announcements into one personalized feed —
 instead of checking WhatsApp groups, Instagram, club pages, emails, and
 notice boards separately.
 
-This is a frontend MVP: no backend, no auth, no API keys. All data is local
-mock data; selected interests persist in `localStorage`.
+This is a frontend MVP: no backend, no real auth, no API keys. All data is
+local mock data; login session and selected interests persist in
+`localStorage`.
+
+## Demo login
+
+Login is checked against a hardcoded list in `src/data/users.js` — nothing
+is sent anywhere. Use:
+
+```
+demo@vitstudent.ac.in / demo1234
+```
+
+(or click the demo credentials shown on the login screen to autofill them).
+Logging out clears both the session and your saved interests, so the next
+login walks through onboarding again.
 
 ## Stack
 
@@ -42,6 +56,8 @@ npm run lint      # oxlint
   Every post has a `category` (`event` | `club` | `note` | `announcement`)
   and a `tags` array. Every view — category tabs, search, and the "For You"
   section — filters this one array; nothing is duplicated per view.
+- **Login.** Mock credential check against `src/data/users.js` → session
+  stored in React state → persisted to `localStorage`.
 - **Onboarding.** Pick interests from a chip grid → stored in React state →
   persisted to `localStorage` → app switches to the dashboard.
 - **For You.** Derived on the fly: posts whose `tags` overlap (case-insensitive)
@@ -54,17 +70,19 @@ npm run lint      # oxlint
 ```
 src/
   components/
-    Header.jsx          top bar with logo + avatar
-    SearchBar.jsx        search input
-    Onboarding.jsx       interest-selection screen
+    Login.jsx             mock login screen
+    Header.jsx            top bar with logo + account menu / logout
+    SearchBar.jsx         search input
+    Onboarding.jsx        interest-selection screen
     InterestChip.jsx      selectable interest chip
-    ForYouSection.jsx    personalized horizontal rail
-    CategoryTabs.jsx     Events / Club Activities / Notes / Announcements
-    PostGrid.jsx         responsive grid of PostCards
-    PostCard.jsx         individual post card
-    EmptyState.jsx       "no results" / "no matches" states
+    ForYouSection.jsx     personalized horizontal rail
+    CategoryTabs.jsx      Events / Club Activities / Notes / Announcements
+    PostGrid.jsx          responsive grid of PostCards
+    PostCard.jsx          individual post card
+    EmptyState.jsx        "no results" / "no matches" states
   data/
-    posts.js             master posts array + categories + interest list
-  App.jsx                 top-level state + view switching
-  main.jsx                React entry point
+    posts.js              master posts array + categories + interest list
+    users.js               mock user list for login
+  App.jsx                  top-level state + view switching
+  main.jsx                 React entry point
 ```
