@@ -1,20 +1,37 @@
 import { useState } from 'react'
-import { Sparkles, Send, Radar } from 'lucide-react'
+import { Sparkles, Send, Radar, Loader2, WifiOff } from 'lucide-react'
 import { posts } from '../data/posts'
 import { searchPosts, summarize } from '../utils/search'
+import { askAI } from '../utils/askApi'
 import PostCard from './PostCard'
 
 const SUGGESTIONS = ['hackathons this week', 'club recruitment', 'exam deadlines', 'music events']
 
 export default function AskAssistant({ registeredIds, onSelectPost }) {
   const [query, setQuery] = useState('')
-  const [result, setResult] = useState(null) // { query, matches, summary } | null
+  const [isLoading, setIsLoading] = useState(false)
+  const [result, setResult] = useState(null) // { query, matches, summary, source } | null
 
-  const runSearch = (text) => {
+  const runSearch = async (text) => {
     const trimmed = text.trim()
     if (!trimmed) return
-    const { matches } = searchPosts(trimmed, posts)
-    setResult({ query: trimmed, matches, summary: summarize(trimmed, matches) })
+
+    setIsLoading(true)
+    try {
+      // Real AI first (Gemini, via our backend). Falls back to the local
+      // keyword matcher if there's no backend running, no API key
+      // configured, or the request fails for any reason — the assistant
+      // should still work even without the AI piece set up.
+      const { summary, matchedIds } = await askAI(trimmed)
+      const byId = new Map(posts.map((p) => [p.id, p]))
+      const matches = matchedIds.map((id) => byId.get(id)).filter(Boolean)
+      setResult({ query: trimmed, matches, summary, source: 'ai' })
+    } catch {
+      const { matches } = searchPosts(trimmed, posts)
+      setResult({ query: trimmed, matches, summary: summarize(trimmed, matches), source: 'local' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSubmit = (e) => {
@@ -52,24 +69,25 @@ export default function AskAssistant({ registeredIds, onSelectPost }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. any coding events this week?"
-          className="w-full rounded-lg bg-transparent px-3 py-2.5 text-sm text-text placeholder:text-muted/70 outline-none"
+          disabled={isLoading}
+          className="w-full rounded-lg bg-transparent px-3 py-2.5 text-sm text-text placeholder:text-muted/70 outline-none disabled:opacity-60"
         />
         <button
           type="submit"
-          disabled={!query.trim()}
+          disabled={!query.trim() || isLoading}
           aria-label="Ask"
           className={[
             'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
-            query.trim()
+            query.trim() && !isLoading
               ? 'bg-accent text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:brightness-110 active:scale-95'
               : 'cursor-not-allowed bg-bg/60 text-muted',
           ].join(' ')}
         >
-          <Send size={16} />
+          {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
         </button>
       </form>
 
-      {!result && (
+      {!result && !isLoading && (
         <div className="relative mt-3 flex flex-wrap gap-2">
           {SUGGESTIONS.map((s) => (
             <button
@@ -84,13 +102,34 @@ export default function AskAssistant({ registeredIds, onSelectPost }) {
         </div>
       )}
 
-      {result && (
+      {isLoading && (
+        <div className="relative mt-4 flex items-center gap-2 text-xs text-muted">
+          <Loader2 size={13} className="animate-spin text-accent" />
+          Scanning campus intelligence...
+        </div>
+      )}
+
+      {result && !isLoading && (
         <div className="relative mt-4 animate-fade-in border-t border-border pt-4">
           <div className="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.3em] text-accent">
-            <Sparkles size={11} />
-            Scan Results
+            {result.source === 'ai' ? (
+              <>
+                <Sparkles size={11} />
+                AI Scan Results
+              </>
+            ) : (
+              <>
+                <WifiOff size={11} />
+                Offline Scan Results
+              </>
+            )}
           </div>
           <p className="text-sm leading-relaxed text-text">{result.summary}</p>
+          {result.source === 'local' && (
+            <p className="mt-1 text-[11px] text-muted">
+              AI backend unavailable — showing keyword-matched results instead.
+            </p>
+          )}
 
           {result.matches.length > 0 && (
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
