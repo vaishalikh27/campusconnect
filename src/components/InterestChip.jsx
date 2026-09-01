@@ -10,7 +10,7 @@ export default function InterestChip({ label, selected, onToggle }) {
         'group relative flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-medium transition-all duration-200',
         'active:scale-95',
         selected
-          ? 'border-accent bg-accent-soft text-white shadow-[0_0_0_1px_rgba(58,134,255,0.4),0_0_24px_rgba(58,134,255,0.25)]'
+          ? 'border-accent bg-accent-soft text-white shadow-[0_0_0_1px_rgba(59,130,246,0.4),0_0_24px_rgba(59,130,246,0.25)]'
           : 'border-border bg-card text-muted hover:border-accent/50 hover:text-text',
       ].join(' ')}
     >

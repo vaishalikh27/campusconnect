@@ -17,28 +17,37 @@ export default function PostCard({ post, isPersonalized = false, isRegistered = 
         }
       }}
       className={[
-        'group flex h-full cursor-pointer flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-left transition-all duration-200',
-        'hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-[0_8px_30px_rgba(58,134,255,0.12)]',
-        'focus:outline-none focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgba(58,134,255,0.15)]',
+        'web-corner group relative flex h-full cursor-pointer flex-col gap-3 overflow-hidden rounded-2xl border border-border bg-card p-5 text-left transition-all duration-200',
+        'hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-[0_8px_30px_rgba(59,130,246,0.14)]',
+        'focus:outline-none focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]',
+        isRegistered ? 'border-crimson/30' : '',
         compact ? 'w-72 shrink-0 sm:w-80' : '',
       ].join(' ')}
     >
+      {/* left accent bar — reads as a mission-briefing tab */}
+      <span
+        className={[
+          'absolute inset-y-0 left-0 w-0.5',
+          isRegistered ? 'bg-crimson/70' : 'bg-accent/0 group-hover:bg-accent/40',
+        ].join(' ')}
+      />
+
       <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/60 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/60 px-2.5 py-1 font-display text-[11px] font-semibold uppercase tracking-wider text-muted">
           <Icon size={12} className="text-accent" />
           {meta?.label ?? post.category}
         </span>
         <div className="flex items-center gap-1.5">
           {isRegistered && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
+            <span className="inline-flex items-center gap-1 rounded-full bg-crimson-soft px-2.5 py-1 text-[11px] font-medium text-red-300">
               <CheckCircle2 size={12} />
               Registered
             </span>
           )}
           {isPersonalized && (
             <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
-              <Sparkles size={12} />
-              Matches your interests
+              <Sparkles size={12} className="animate-spider-pulse rounded-full" />
+              Spider-Sense Match
             </span>
           )}
         </div>

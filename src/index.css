@@ -2,19 +2,28 @@
 
 @theme {
   --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  /* Bold display face for headings — mission-console feel */
+  --font-display: "Rajdhani", "Inter", system-ui, sans-serif;
 
-  --color-bg: #0a0e1a;
-  --color-card: #121828;
-  --color-border: #1e2739;
-  --color-accent: #3a86ff;
-  --color-accent-soft: rgba(58, 134, 255, 0.12);
-  --color-crimson: #d62828;
-  --color-text: #f3f5fa;
+  /* Spider-Man-inspired palette. Token NAMES are unchanged from the
+     original theme (bg/card/border/accent/accent-soft/crimson/text/muted)
+     so every existing className in the app keeps working — only the
+     values shift. */
+  --color-bg: #05070d;
+  --color-card: #0d1220;
+  --color-border: #1b2436;
+  --color-accent: #3b82f6; /* electric blue — AI, links, secondary interactive */
+  --color-accent-soft: rgba(59, 130, 246, 0.12);
+  --color-crimson: #e31b23; /* Spider-Man red — primary/important actions only */
+  --color-crimson-soft: rgba(227, 27, 35, 0.14);
+  --color-text: #f8fafc;
   --color-muted: #8b96ad;
 
   --animate-fade-up: fade-up 0.6s ease both;
   --animate-fade-in: fade-in 0.5s ease both;
   --animate-scale-in: scale-in 0.3s ease both;
+  --animate-spider-pulse: spider-pulse 2.6s ease-in-out infinite;
+  --animate-web-spin: web-spin 160s linear infinite;
 
   @keyframes fade-up {
     from {
@@ -42,6 +51,23 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+  @keyframes spider-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+    }
+  }
+  @keyframes web-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 }
@@ -82,4 +108,59 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ================= Spider-web visual language =================
+   Pure CSS/SVG-geometry decoration — no character artwork, no imagery.
+   Everything below is purely decorative (pointer-events: none) and
+   layered behind real content, so it never affects layout or clicks. */
+
+/* Large radial web — spokes + concentric rings — for hero backgrounds
+   (login, onboarding, dashboard top). Extremely low opacity by design. */
+.web-radial-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-conic-gradient(from 0deg at 50% 42%, rgba(59, 130, 246, 0.45) 0deg 0.4deg, transparent 0.4deg 15deg),
+    repeating-radial-gradient(circle at 50% 42%, rgba(59, 130, 246, 0.3) 0px 1px, transparent 1px 64px);
+  -webkit-mask-image: radial-gradient(circle at 50% 38%, black 0%, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 38%, black 0%, transparent 62%);
+}
+
+/* Optional ultra-slow rotation for a faint "alive" feel — cheap
+   (transform-only, GPU composited), never interferes with input. */
+.web-radial-bg--spin {
+  animation: var(--animate-web-spin);
+  transform-origin: 50% 42%;
+}
+
+/* Small corner web accent for cards/panels — a handful of threads
+   converging on the top-right corner. */
+.web-corner {
+  position: relative;
+}
+.web-corner::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  opacity: 0.3;
+  background-repeat: no-repeat;
+  background-position: top right;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%233b82f6' stroke-width='1'%3E%3Cpath d='M56 0 34 56 M56 0 10 40 M56 0 0 12 M14 34Q16 12 56 14 M30 52Q22 22 56 30'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Spider-sense glow ring — used on focus states and key interactive
+   surfaces (search/ask inputs). Blue by default. */
+.spidersense-ring {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.spidersense-ring:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18), 0 0 28px rgba(59, 130, 246, 0.2);
 }

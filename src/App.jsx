@@ -139,8 +139,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="relative min-h-screen overflow-hidden bg-bg">
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-accent/5 blur-[140px]" />
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Header user={session} onLogout={handleLogout} />
 
         <AskAssistant registeredIds={registeredIdSet} onSelectPost={(post) => setSelectedPostId(post.id)} />

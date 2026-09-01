@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Send } from 'lucide-react'
+import { Sparkles, Send, Radar } from 'lucide-react'
 import { posts } from '../data/posts'
 import { searchPosts, summarize } from '../utils/search'
 import PostCard from './PostCard'
@@ -28,33 +28,40 @@ export default function AskAssistant({ registeredIds, onSelectPost }) {
   }
 
   return (
-    <section className="animate-fade-up rounded-2xl border border-border bg-card p-5">
-      <div className="mb-3 flex items-center gap-2">
-        <Sparkles size={18} className="text-accent" />
+    <section className="web-corner relative animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-card p-5 shadow-[0_0_40px_rgba(59,130,246,0.08)]">
+      <div className="web-radial-bg" />
+
+      <div className="relative mb-3 flex items-center gap-3">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent/40 bg-bg">
+          <Radar size={18} className="animate-spider-pulse rounded-full text-accent" />
+        </div>
         <div>
+          <div className="flex items-center gap-1.5 font-display text-[11px] font-semibold uppercase tracking-[0.25em] text-accent">
+            Spider-Sense <span className="text-crimson">//</span> Campus Intelligence
+          </div>
           <h2 className="text-lg font-semibold text-text">Ask about campus</h2>
-          <p className="text-xs text-muted">
-            Type a question and I'll match it against events, clubs, notes and announcements.
-          </p>
         </div>
       </div>
+      <p className="relative mb-3 text-xs text-muted">
+        Type a question and I'll match it against events, clubs, notes and announcements.
+      </p>
 
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <form onSubmit={handleSubmit} className="spidersense-ring relative flex items-center gap-2 rounded-xl border border-border bg-bg/60 p-1 pl-1">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. any coding events this week?"
-          className="w-full rounded-xl border border-border bg-bg/60 px-4 py-3 text-sm text-text placeholder:text-muted/70 outline-none transition-all duration-200 focus:border-accent focus:shadow-[0_0_0_3px_rgba(58,134,255,0.15)]"
+          className="w-full rounded-lg bg-transparent px-3 py-2.5 text-sm text-text placeholder:text-muted/70 outline-none"
         />
         <button
           type="submit"
           disabled={!query.trim()}
           aria-label="Ask"
           className={[
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
             query.trim()
-              ? 'bg-accent text-white shadow-[0_0_20px_rgba(58,134,255,0.3)] hover:brightness-110 active:scale-95'
+              ? 'bg-accent text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:brightness-110 active:scale-95'
               : 'cursor-not-allowed bg-bg/60 text-muted',
           ].join(' ')}
         >
@@ -63,13 +70,13 @@ export default function AskAssistant({ registeredIds, onSelectPost }) {
       </form>
 
       {!result && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="relative mt-3 flex flex-wrap gap-2">
           {SUGGESTIONS.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => handleSuggestion(s)}
-              className="rounded-full border border-border bg-bg/60 px-3 py-1.5 text-xs text-muted transition-colors duration-150 hover:border-accent/50 hover:text-text"
+              className="rounded-full border border-border bg-bg/60 px-3 py-1.5 text-xs text-muted transition-all duration-150 hover:border-accent/50 hover:text-text hover:shadow-[0_0_12px_rgba(59,130,246,0.15)]"
             >
               {s}
             </button>
@@ -78,7 +85,11 @@ export default function AskAssistant({ registeredIds, onSelectPost }) {
       )}
 
       {result && (
-        <div className="mt-4 animate-fade-in border-t border-border pt-4">
+        <div className="relative mt-4 animate-fade-in border-t border-border pt-4">
+          <div className="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.3em] text-accent">
+            <Sparkles size={11} />
+            Scan Results
+          </div>
           <p className="text-sm leading-relaxed text-text">{result.summary}</p>
 
           {result.matches.length > 0 && (

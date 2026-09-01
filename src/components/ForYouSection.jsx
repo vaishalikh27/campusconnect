@@ -6,7 +6,7 @@ export default function ForYouSection({ posts, registeredIds, onSelectPost }) {
   return (
     <section className="animate-fade-up">
       <div className="mb-4 flex items-center gap-2">
-        <Sparkles size={18} className="text-accent" />
+        <Sparkles size={18} className="animate-spider-pulse rounded-full text-accent" />
         <div>
           <h2 className="text-lg font-semibold text-text">For You</h2>
           <p className="text-xs text-muted">Picked based on your interests</p>

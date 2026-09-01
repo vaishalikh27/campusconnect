@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Radar, ArrowRight, Mail, Lock, AlertCircle } from 'lucide-react'
+import { Radar, ArrowRight, Mail, Lock, AlertCircle, ShieldCheck } from 'lucide-react'
 import { findUser } from '../data/users'
 
 export default function Login({ onLogin }) {
@@ -30,20 +30,27 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
+      <div className="web-radial-bg web-radial-bg--spin" />
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-accent/10 blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-crimson/10 blur-[120px]" />
 
       <div className="relative w-full max-w-sm">
         <div className="mb-10 flex animate-fade-in flex-col items-center text-center">
-          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card shadow-[0_0_30px_rgba(58,134,255,0.2)]">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-accent/40 bg-card shadow-[0_0_30px_rgba(59,130,246,0.25)]">
             <Radar size={26} className="text-accent" />
           </div>
-          <p className="text-sm font-medium tracking-wide text-accent">CampusConnect</p>
+          <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            CampusConnect
+          </p>
           <p className="mt-1 text-xs text-muted">Your Spider-Sense for Campus</p>
         </div>
 
         <div className="animate-fade-up text-center" style={{ animationDelay: '80ms' }}>
-          <h1 className="text-3xl font-semibold tracking-tight text-text">Welcome back</h1>
+          <div className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.3em] text-crimson">
+            <ShieldCheck size={12} />
+            Secure Access
+          </div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-text">Welcome back</h1>
           <p className="mx-auto mt-3 max-w-xs text-sm text-muted">
             Sign in with your student account to see your personalized campus feed.
           </p>
@@ -51,10 +58,10 @@ export default function Login({ onLogin }) {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-8 flex animate-fade-up flex-col gap-4"
+          className="relative mt-8 flex animate-fade-up flex-col gap-4 rounded-2xl border border-border bg-card/60 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl"
           style={{ animationDelay: '160ms' }}
         >
-          <div className="relative">
+          <div className="spidersense-ring relative rounded-xl border border-border bg-bg/60">
             <Mail size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="email"
@@ -62,11 +69,11 @@ export default function Login({ onLogin }) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@vitstudent.ac.in"
               autoComplete="email"
-              className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-text placeholder:text-muted/70 outline-none transition-all duration-200 focus:border-accent focus:shadow-[0_0_0_3px_rgba(58,134,255,0.15)]"
+              className="w-full rounded-xl bg-transparent py-3.5 pl-11 pr-4 text-sm text-text placeholder:text-muted/70 outline-none"
             />
           </div>
 
-          <div className="relative">
+          <div className="spidersense-ring relative rounded-xl border border-border bg-bg/60">
             <Lock size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="password"
@@ -74,7 +81,7 @@ export default function Login({ onLogin }) {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               autoComplete="current-password"
-              className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-text placeholder:text-muted/70 outline-none transition-all duration-200 focus:border-accent focus:shadow-[0_0_0_3px_rgba(58,134,255,0.15)]"
+              className="w-full rounded-xl bg-transparent py-3.5 pl-11 pr-4 text-sm text-text placeholder:text-muted/70 outline-none"
             />
           </div>
 
@@ -91,8 +98,8 @@ export default function Login({ onLogin }) {
             className={[
               'mt-2 flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition-all duration-200',
               canSubmit
-                ? 'bg-accent text-white shadow-[0_0_30px_rgba(58,134,255,0.35)] hover:brightness-110 active:scale-[0.98]'
-                : 'cursor-not-allowed bg-card text-muted',
+                ? 'bg-crimson text-white shadow-[0_0_30px_rgba(227,27,35,0.35)] hover:brightness-110 active:scale-[0.98]'
+                : 'cursor-not-allowed bg-bg/60 text-muted',
             ].join(' ')}
           >
             Sign in
